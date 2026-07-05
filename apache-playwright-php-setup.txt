@@ -1,0 +1,87 @@
+HOWTO build the SAP report app
+------------------------------
+
+Set up the Apache Web server:
+
+1/You must first install the Visual C++ Redistributable for Visual Studio 2017-2026 https://aka.ms/vc14/vc_redist.x64.exe
+
+2/install the pre-built windows MSI nodejs package from https://nodejs.org/en/download (in the wizard leave the component defaults including add to PATH, select the automatical install the necesary tools. NOTE aside the install wizard, this launches a cmd.exe/powershell to install the additional tools including Python and Visual Studio - accept the prompt. Installing the tools takes some time. Wait for it to finish. Press ENTER to exit when prompted.
+
+
+3/Set Global Environment Variables
+By default, Playwright downloads browsers into a user-specific local AppData folder. On a terminal server, you want to store them in a single, accessible shared location (e.g., C:\ProgramData\Playwright-Browsers) to save disk space. Open System Properties > Advanced > Environment Variables as an Administrator. Under System variables, click New:
+Variable name: PLAYWRIGHT_BROWSERS_PATH , Variable value: C:\ProgramData\Playwright-Browsers , Click OK. This forces every user to look for or save browser binaries to this central folder.
+
+4/Install Playwright Globally - Open a Command Prompt or PowerShell window as an Administrator and execute the following commands to install Playwright and download the browser binaries:
+  a/ Create a temporary folder and navigate to it:
+     cmd
+     mkdir C:\Playwright-Setup
+     cd C:\Playwright-Setup
+
+  b/ Initialize and install the Playwright test package globally:
+     cmd
+     npm install -g @playwright/test
+
+  c/ Install the browsers (Chromium, Firefox, WebKit) to the global path:
+     cmd
+     npx playwright install
+
+5/Grant Permissions to the Shared Browser Folder - Since the browsers were installed by an Administrator, you must ensure all users on the server have permission to execute them. Open File Explorer and navigate to C:\ProgramData\Playwright-Browsers. Right-click the folder, select Properties, and go to the Security tab. Click Edit and ensure the Users group has Read & execute and List folder contents permissions. Click Apply and OK. (this should be the situation by default)
+
+7/Download Apache pre-built (zip) file, extract the Apache2.4 folder from the zip file to the root of the C: drive as C:\Apache24 (https://www.apachelounge.com/download/)
+
+8/Open an admin cmd and install apache as a service: cd c:\apache24\bin; httpd.exe -k install 
+
+9/Start Apache service - net start Apache2.4
+
+10/Download the application code (reportapp.zip) built with AI by vibe coding into the Apache webserver root directory (C:\Apache24\htdocs\reportapp\):
+
+11/Install playwright into the folder. Add --with-deps to install the chromium browser system-wide - so has to be done from an admin cmd.exe. If you want to install firefox, chromium, and webkit (safari), then just remove chromium from the "npx playwright install" command. 
+cd C:\Apache24\htdocs\reportapp\playwright
+npm install
+npx playwright install chromium
+
+
+12/Install PHP into C:\PHP and configure Apache to use it, then restart Apache service 
+
+13/Download the "VS17 x64 Thread Safe" PHP zip file from https://www.php.net/downloads.php?os=windows (php-8.5.8-Win32-vs17-x64.zip) and extract to C:\php\
+
+14/Configure the php.ini File - copy C:\php.ini-development (or php.ini-production) to C:\php\php.ini 
+
+15/Open php.ini in a text editor and configure the following baselines:
+Find ;extension_dir = "ext" and remove the semicolon to uncomment it: then change it from extension_dir = "ext" to extension_dir = "C:\php\ext"
+
+16/Uncomment the following extensions in C:\php.ini by removing the ";" at the begining of each line: 
+extension=curl
+extension=fileinfo
+extension=mbstring
+extension=openssl
+extension=pdo_mysq
+
+
+17Link PHP to Apache Lounge
+Open your Apache configuration file, typically located at C:\Apache24\conf\httpd.conf.
+Scroll to the very bottom of the file and append the following configuration blocks (adjust paths if you extracted PHP elsewhere): 
+
+# Load the PHP module (Update the file name php8apache2_4.dll to match your exact version if using PHP 7/9)
+LoadModule php_module "C:/php/php8apache2_4.dll"
+
+# Specify the path to the php.ini file
+PHPIniDir "C:/php"
+
+# Map the .php extension to the PHP module
+AddHandler application/x-httpd-php .php
+ 
+# Index files
+DirectoryIndex index.php index.html
+
+
+18/Search for the DirectoryIndex directive inside httpd.conf. Modify it so Apache looks for index.php files automatically: 
+<IfModule dir_module>
+    DirectoryIndex index.php index.html
+</IfModule>
+
+
+12/Restart Apache service - may be needed to pick up the npm/npx installations
+
+13/Launch a web browser and navigate to http://localhost/reportapp/ - fill in your credentials; choose the report to run and the business area, and click the "Run Playwright Test" button. Note that a screenshot of the dashboard is stored in the reportapp\playwright\ folder 
