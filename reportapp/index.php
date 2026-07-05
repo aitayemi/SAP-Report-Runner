@@ -36,7 +36,7 @@ if (($handle = fopen($bizareasFile, "r")) !== FALSE) {
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Pennsylvania State University - SAP Report Runner</title>
+    <title>ACME Corp - SAP Report Runner</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -212,7 +212,7 @@ if (($handle = fopen($bizareasFile, "r")) !== FALSE) {
 <body>
     <div class="container">
         <h1>📊 SAP Report Runner</h1>
-        <p class="subtitle">Pennsylvania State University</p>
+        <p class="subtitle">ACME Corp</p>
 
         <div class="section-label">🔐 Credentials</div>
         <div class="form-group">
