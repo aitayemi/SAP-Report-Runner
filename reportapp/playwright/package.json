@@ -1,0 +1,11 @@
+{
+  "name": "report-runner-playwright",
+  "version": "1.0.0",
+  "description": "Playwright tests for Report Runner",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
